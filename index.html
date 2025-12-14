@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Jogo de tabuleiro tradicional Tab - Versao online multiplayer">
+  <title>Jogo Tab - Online</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap&subset=latin-ext" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo-section">
+        <div class="logo-icon"><i data-lucide="dices"></i></div>
+        <h1>Tab</h1>
+        <p>Jogo de Tabuleiro Tradicional</p>
+      </div>
+
+      <div class="panel login-panel" id="login-panel">
+        <h2><i data-lucide="lock-keyhole"></i> Identificacao</h2>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="nick">Nick:</label>
+            <input type="text" id="nick" placeholder="Seu nome" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Senha" required>
+          </div>
+          <button type="submit" class="btn btn-primary"><i data-lucide="log-in"></i> Entrar / Registar</button>
+        </form>
+        <div id="user-info" class="hidden">
+          <p><i data-lucide="user"></i> Bem-vindo, <strong id="user-nick"></strong></p>
+          <button id="logout-btn" class="btn btn-secondary"><i data-lucide="log-out"></i> Terminar Sessao</button>
+        </div>
+      </div>
+
+      <div class="panel config-panel">
+        <h2><i data-lucide="settings"></i> Configuracao</h2>
+        <div class="config-item">
+          <label>Grupo (ID):</label>
+          <input type="number" id="group-id" value="99" min="1" max="999">
+        </div>
+        <div class="config-item">
+          <label>Tamanho do Tabuleiro:</label>
+          <select id="board-size">
+            <option value="7">7 colunas</option>
+            <option value="9" selected>9 colunas</option>
+            <option value="11">11 colunas</option>
+            <option value="13">13 colunas</option>
+            <option value="15">15 colunas</option>
+          </select>
+        </div>
+        <div class="config-item">
+          <label>Modo de Jogo:</label>
+          <select id="game-mode">
+            <option value="online">Jogador vs Jogador (Online)</option>
+            <option value="ai">Jogador vs Computador</option>
+          </select>
+        </div>
+        <div class="config-item ai-config">
+          <label>Nivel da IA:</label>
+          <select id="ai-level">
+            <option value="easy">Facil</option>
+            <option value="medium" selected>Medio</option>
+            <option value="hard">Dificil</option>
+          </select>
+        </div>
+        <div class="config-item ai-config">
+          <label>Primeiro Jogador:</label>
+          <select id="first-player">
+            <option value="player">Voce</option>
+            <option value="ai">Computador</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="panel commands-panel">
+        <h2><i data-lucide="gamepad-2"></i> Comandos</h2>
+        <button id="start-game" class="btn btn-success"><i data-lucide="play"></i> Iniciar Jogo</button>
+        <button id="forfeit-game" class="btn btn-danger" disabled><i data-lucide="flag"></i> Desistir</button>
+        <button id="show-rankings" class="btn btn-info"><i data-lucide="trophy"></i> Classificacoes</button>
+      </div>
+    </aside>
+
+    <main class="game-area">
+      <div class="game-header">
+        <div class="player-info player1-info">
+          <span class="player-color blue"></span>
+          <span id="player1-name">Azul</span>
+          <span id="player1-pieces" class="piece-count">9</span>
+        </div>
+        <div class="turn-indicator" id="turn-indicator">
+          A aguardar...
+        </div>
+        <div class="player-info player2-info">
+          <span id="player2-pieces" class="piece-count">9</span>
+          <span id="player2-name">Vermelho</span>
+          <span class="player-color red"></span>
+        </div>
+      </div>
+
+      <div class="canvas-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="welcome-screen" class="welcome-screen">
+          <h2><i data-lucide="dices" class="welcome-icon"></i> Bem-vindo ao Tab!</h2>
+          <p>Faca login e clique em "Iniciar Jogo" para comecar.</p>
+        </div>
+      </div>
+
+      <div class="dice-section">
+        <div class="sticks-display" id="sticks-display">
+          <div class="stick" data-index="0"></div>
+          <div class="stick" data-index="1"></div>
+          <div class="stick" data-index="2"></div>
+          <div class="stick" data-index="3"></div>
+        </div>
+        <div class="dice-info">
+          <span id="dice-value">-</span>
+          <span id="dice-name"></span>
+        </div>
+        <button id="roll-dice" class="btn btn-roll" disabled><i data-lucide="dices"></i> Lancar Dado</button>
+        <button id="pass-turn" class="btn btn-pass" disabled><i data-lucide="skip-forward"></i> Passar Vez</button>
+      </div>
+
+      <div class="panel messages-panel">
+        <h2><i data-lucide="message-square"></i> Mensagens</h2>
+        <div class="message-list" id="message-list"></div>
+      </div>
+    </main>
+
+    <aside class="sidebar right-sidebar">
+      <div class="panel instructions-panel" id="instructions-panel">
+        <h2><i data-lucide="book-open"></i> Instrucoes</h2>
+        <div class="instructions-content">
+          <p><strong>Objetivo:</strong> Capturar todas as pecas do adversario.</p>
+          
+          <p><strong>Como Jogar:</strong></p>
+          <ol>
+            <li>Lance o dado de paus</li>
+            <li>Selecione uma peca para mover</li>
+            <li>Clique no destino</li>
+          </ol>
+          
+          <p><strong>Regras Especiais:</strong></p>
+          <ul>
+            <li>Pecas nao movidas so podem mover com <strong>1 (Tab)</strong></li>
+            <li>Pecas na ultima linha so podem mover quando todas as outras ja sairam da base</li>
+          </ul>
+          
+          <p><strong>Dado de Paus:</strong></p>
+          <table class="dice-table">
+            <tr><th>Valor</th><th>Nome</th><th>Repete</th></tr>
+            <tr><td>1</td><td>Tab</td><td>Y</td></tr>
+            <tr><td>2</td><td>Itneyn</td><td>N</td></tr>
+            <tr><td>3</td><td>Telateh</td><td>N</td></tr>
+            <tr><td>4</td><td>Arba'ah</td><td>Y</td></tr>
+            <tr><td>6</td><td>Sitteh</td><td>Y</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel rankings-panel hidden" id="rankings-panel">
+        <h2><i data-lucide="trophy"></i> Classificacoes</h2>
+        <p class="rankings-info">Grupo: <span id="ranking-group">99</span> | Tamanho: <span id="ranking-size">9</span></p>
+        <table id="rankings-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nick</th>
+              <th>Vitorias</th>
+              <th>Jogos</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <button id="close-rankings" class="btn btn-secondary"><i data-lucide="arrow-left"></i> Voltar</button>
+      </div>
+    </aside>
+  </div>
+
+  <div class="modal hidden" id="game-over-modal">
+    <div class="modal-content">
+      <h2 id="winner-text"><i data-lucide="crown" class="winner-icon"></i> Vencedor!</h2>
+      <p id="winner-name"></p>
+      <button id="play-again" class="btn btn-primary"><i data-lucide="rotate-ccw"></i> Jogar Novamente</button>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="waiting-modal">
+    <div class="modal-content">
+      <h2><i data-lucide="loader-circle" class="spinning"></i> Aguardando Adversario...</h2>
+      <p>Procurando jogador com as mesmas configuracoes...</p>
+      <p class="waiting-info">Grupo: <span id="waiting-group"></span> | Tamanho: <span id="waiting-size"></span></p>
+      <div class="spinner"></div>
+      <button id="cancel-waiting" class="btn btn-secondary"><i data-lucide="x"></i> Cancelar</button>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
