@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+server/node_modules/
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Build
+dist/
+build/
+
+# Server data (runtime generated)
+server/data/
